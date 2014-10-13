@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:beans="http://www.springframework.org/schema/beans"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/security 
+        http://www.springframework.org/schema/security/spring-security-3.2.xsd
+		http://www.springframework.org/schema/beans 
+        http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+	<http use-expressions="true">
+		<intercept-url pattern="/index*" access="permitAll" />
+		<intercept-url pattern="/login" access="permitAll" />
+		<intercept-url pattern="/login*" access="permitAll" />
+		<intercept-url pattern="/**" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/**" access="hasRole('ROLE_ADMIN')" />
+
+		<form-login 
+			authentication-failure-url="/loginfailed" default-target-url="/index.jsp"
+			always-use-default-target="true" authentication-success-handler-ref="redirectRoleStrategy" />
+		<!-- <x509 subject-principal-regex="CN=(.*?),"/> -->
+		<!-- <session-management>
+			<concurrency-control max-sessions="1"
+				error-if-maximum-exceeded="true" />
+		</session-management> -->
+	</http>
+
+	<authentication-manager>
+		<authentication-provider ref="customAuthenticationProvider" />
+	</authentication-manager>
+
+	<beans:bean name="customAuthenticationProvider"
+		class="com.ss.group9.security.CustomAuthenticationProvider" />
+
+	<beans:bean id="redirectRoleStrategy"
+		class="com.ss.group9.security.RoleBasedAuthenticationSuccessHandler">
+		<beans:property name="roleUrlMap">
+			<beans:map>
+				<beans:entry key="ROLE_SYSTEM" value="/homepage.jsp" />
+				<beans:entry key="ROLE_ADMIN" value="/homepage.jsp" />
+				<beans:entry key="ROLE_USER" value="/homepage.jsp" />
+			</beans:map>
+		</beans:property>
+	</beans:bean>
+</beans:beans>
